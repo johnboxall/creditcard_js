@@ -75,12 +75,27 @@ var CreditCard = {
             if (CreditCard['is'+card](jQuery.trim(number))) return card;
     },
 
-    isTestNumber: function(number){
+    isTestNumber: function(number) {
         return jQuery.inArray(jQuery.trim(number), CreditCard.TEST_NUMBERS) > -1;
     },
+    
+    isType: function(cardType, number) {
+        return CreditCard.CARDS[cardType].test(jQuery.trim(number));
+    }
 };
 
-for (card in CreditCard.CARDS)
-    CreditCard['is'+card] = function(number) {
-        return CreditCard.CARDS[card].test(jQuery.trim(number));
+// http://ejohn.org/blog/partial-functions-in-javascript/
+Function.prototype.partial = function(){
+    var fn = this, args = Array.prototype.slice.call(arguments);
+    return function(){
+        var arg = 0;
+    for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+        if ( args[i] === undefined )
+            args[i] = arguments[arg++];
+        return fn.apply(this, args);
     };
+};
+
+for (card in CreditCard.CARDS) {
+    CreditCard['is'+card] = CreditCard.isType.partial(card, undefined);
+}
