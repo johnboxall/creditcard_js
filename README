@@ -1,6 +1,6 @@
 This was extracted from http://letsfreckle.com. 
 
-You need to be using a recent-ish version of the Prototype JavaScript framework.
+You need to be using a recent-ish version of the jQuery JavaScript framework.
 
 CreditCard.validate('1111 2222 3333 4444') -> true/false
   the given string is automatically stripped of whitespace, so it can be

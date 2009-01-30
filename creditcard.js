@@ -19,7 +19,10 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+//
+// jquery mod by John Boxall
+// http://www.twitter.com/johnboxall
+//
 // CreditCard.validate('1111 2222 3333 4444') -> true/false
 //   the given string is automatically stripped of whitespace, so it can be
 //   plugged directly into form validations
@@ -35,41 +38,49 @@
 // Be sure to adapt the CARDS array to the credit cards you accept.
 
 var CreditCard = {
-  CARDS: {
-    Visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
-    MasterCard: /^5[1-5][0-9]{14}$/,
-    DinersClub: /^3(?:0[0-5]|[68][0-9])[0-9]{11}$/,
-    Amex: /^3[47][0-9]{13}$/,
-    Discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/
-  },
-  TEST_NUMBERS: $w('378282246310005 371449635398431 378734493671000 '+
-    '30569309025904 38520000023237 6011111111111117 '+
-    '6011000990139424 5555555555554444 5105105105105100 '+
-    '4111111111111111 4012888888881881 4222222222222'
-  ),
-  validate: function(number){
-    return CreditCard.verifyLuhn10(number)
-      && !!CreditCard.type(number)
-      && !CreditCard.isTestNumber(number);
-  },
-  verifyLuhn10: function(number){
-    return ($A(CreditCard.strip(number)).reverse().inject(0,function(a,n,index){
-      return a + $A((parseInt(n) * [1,2][index%2]).toString())
-        .inject(0, function(b,o){ return b + parseInt(o) }) }) % 10 == 0);
-  },
-  isTestNumber: function(number){
-    return CreditCard.TEST_NUMBERS.include(CreditCard.strip(number));
-  },
-  strip: function(number) {
-    return number.gsub(/\s/,'');
-  },
-  type: function(number) {
-    for(card in CreditCard.CARDS)
-      if(CreditCard['is'+card](number)) return card;
-  }
+    CARDS: {
+        Visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
+        MasterCard: /^5[1-5][0-9]{14}$/,
+        DinersClub: /^3(?:0[0-5]|[68][0-9])[0-9]{11}$/,
+        Amex: /^3[47][0-9]{13}$/,
+        Discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/
+    },
+    
+    TEST_NUMBERS: ('378282246310005 371449635398431 378734493671000 '+
+        '30569309025904 38520000023237 6011111111111117 '+
+        '6011000990139424 5555555555554444 5105105105105100 '+
+        '4111111111111111 4012888888881881 4222222222222'
+    ).split(' '),
+
+    validate: function(number){
+        return CreditCard.verifyLuhn10(number)
+            && !!CreditCard.type(number)
+            && !CreditCard.isTestNumber(number);
+    },
+
+    verifyLuhn10: function(number){
+        var a = "";
+        var t = 0;
+        jQuery.each(jQuery.trim(number).split('').reverse(), function(i) {
+            a += parseInt(this) * [1,2][i % 2]
+        });
+        jQuery.each(a.toString(), function() {
+            t += parseInt(this);
+        });
+        return t % 10 == 0;
+    },
+  
+    type: function(number) {
+        for (card in CreditCard.CARDS)
+            if (CreditCard['is'+card](jQuery.trim(number))) return card;
+    },
+
+    isTestNumber: function(number){
+        return jQuery.inArray(jQuery.trim(number), CreditCard.TEST_NUMBERS) > -1;
+    },
 };
 
-for(card in CreditCard.CARDS)
-  CreditCard['is'+card] = function(number){
-    return CreditCard.CARDS[card].test(CreditCard.strip(number));
-  };
+for (card in CreditCard.CARDS)
+    CreditCard['is'+card] = function(number) {
+        return CreditCard.CARDS[card].test(jQuery.trim(number));
+    };
